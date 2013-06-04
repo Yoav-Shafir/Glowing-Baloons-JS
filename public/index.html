@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Glowing Baloons</title>
+	<style>
+		body {
+			background: #000;
+		}
+		.pink{
+			border: 1px solid rgba(216, 14, 124, 0.701961);
+			background-image: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 70.5, from(rgba(216, 14, 124, 0.0980392)), to(rgba(216, 14, 124, 0.4)));
+		}
+		.yellow {
+			border: 1px solid rgba(10, 30, 70, 0.701961);
+			background-image: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 70.5, from(rgba(10, 30, 70, 0.0980392)), to(rgba(10, 30, 70, 0.4)));
+		}
+		.purple {
+			border: 1px solid rgba(10, 30, 70, 0.701961);
+			background-image: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 70.5, from(rgba(10, 30, 70, 0.0980392)), to(rgba(10, 30, 70, 0.4)));
+		}
+		.red {
+			border: 1px solid rgba(157, 22, 5, 0.701961);
+			background-image: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 70.5, from(rgba(157, 22, 5, 0.0980392)), to(rgba(157, 22, 5, 0.4)));
+		}
+		.gold {
+			border: 1px solid rgba(247, 215, 150, 0.701961);
+			background-image: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 70.5, from(rgba(247, 215, 150, 0.0980392)), to(rgba(247, 215, 150, 0.4)));
+		} 
+		.tail {
+			position: absolute;
+			left: 0px;
+			bottom: -100px;
+			width: 1px;
+			height: 100px;
+			background: rgba(255, 255, 255, 0.2);
+			-webkit-transform-origin: 0% 0%;
+
+		}
+		.baloon {
+			position:absolute;
+		}
+		.a {
+			width: 114px;
+			height: 114px;
+			border-top-left-radius: 57px;
+			border-top-right-radius: 57px;
+			border-bottom-right-radius: 57px;
+		}
+		.b{
+			width: 90px;
+			height: 90px;
+			border-top-left-radius: 45px;
+			border-top-right-radius: 45px;
+			border-bottom-right-radius: 45px;
+		}
+		.c{
+			width: 80px;
+			height: 80px;
+			border-top-left-radius: 40px;
+			border-top-right-radius: 40px;
+			border-bottom-right-radius: 40px;
+		}
+		.d{
+			width: 96px;
+			height: 96px;
+			border-top-left-radius: 48px;
+			border-top-right-radius: 48px;
+			border-bottom-right-radius: 48px;
+		}
+		.e{
+			width: 120px;
+			height: 120px;
+			border-top-left-radius: 60px;
+			border-top-right-radius: 60px;
+			border-bottom-right-radius: 60px;
+		}
+
+	</style>
+</head>
+<body>
+	
+	<script>
+
+		function Baloon() {
+			this.classColor    = this.getRandomClassColor();
+			this.classSize     = this.getRandomClassSize();
+			this.left          = Math.floor( Math.random() * window.innerWidth ); 
+			this.top           = Math.floor( window.innerHeight );
+			this.dir           = Math.random() > 0.5 ? 'r' : 'l';
+			this.deg           = ( this.dir === 'r' ) ? 55*-1 : 35*-1; 
+			this.start         = 0;
+		}
+
+		Baloon.prototype.create = function() {
+			var b, t;
+
+			// actual baloon div.
+			b = document.createElement('div');
+			
+			// the tail div.
+			t = document.createElement('div'); 
+			
+			// set random classes for size & color.
+			b.className = 'baloon ' + this.classColor + ' ' + this.classSize;
+			
+			b.style.cssText = 
+				'-webkit-transform:translate3d(' + this.left + 'px, ' + this.top + 'px, 0) rotate(' + this.deg + 'deg);';
+			
+			t.className = 'tail';
+			b.appendChild( t );	
+			document.body.appendChild( b );
+			
+			// keep a reference for later use.
+			this.el   = b;
+			this.tail = t;	
+		}
+		Baloon.prototype.getRandomClassColor = function() {
+			return ['pink', 'purple', 'gold', 'red', 'blue'][Math.floor(Math.random()*4)];
+		}
+		Baloon.prototype.getRandomClassSize = function() {
+			return ['a', 'b', 'c', 'd', 'e'][Math.floor(Math.random()*4)];
+		}
+		Baloon.prototype.update = function() {
+			var l;
+			
+			if ( this.top < -200 ) {
+				try	{
+					document.body.removeChild( this.el );	
+				} catch( e ) {}
+				
+			}	
+
+			this.top   -= 0.5;
+
+			// adding this value to the width & the tail's rotation, makes the sine wave behaviour.
+			this.factor = 50 * Math.sin( this.start ) + 80; 
+			
+			// sine wave behaviour for rotating the baloon.
+			this.deg    = 10 * Math.sin( this.start ) + 45;
+			this.start += 0.01; 
+			
+			l           = this.left + this.factor;
+			
+			// tail element.
+			this.tail.style.cssText = 
+				'-webkit-transform: rotate('+ this.factor * 0.5 +'deg);';
+
+			// baloon element.	
+			this.el.style.cssText = 
+				'-webkit-transform:translate3d(' + l + 'px, ' + this.top + 'px, 0) rotate(' + (this.deg * -1) + 'deg)';
+
+			
+		} 
+
+		var gameManager;
+		gameManager = (function() {
+
+			var baloons;
+			baloons = [];
+
+			function getRandomInterval() {
+				return (Math.floor(Math.random()*11) + 10) * 200;
+			}
+
+			function createBaloons() {
+				
+				setTimeout( function() {
+
+					var b;
+
+					b = new Baloon();
+					b.create();
+					baloons.push( b );
+
+					createBaloons();
+				}, getRandomInterval());
+			}
+
+			function moveBaloons() {
+
+				for (var i=0; i<baloons.length; i++) {
+					var b;
+					b = baloons[i];
+					b.update();
+				}
+			}
+
+			function startGameLoop() {
+				(function loop() {
+					setTimeout( function() {
+						moveBaloons();
+						loop();
+					}, 1000/60 );
+				})();
+			}
+
+			function init() {
+				createBaloons();
+				startGameLoop();
+			}
+
+			return { init: init }
+
+		})();
+
+		if ( !!window.chrome )
+			gameManager.init();
+		else
+			alert('This content is available only in Chrome.')
+
+	</script>
+</body>
+</html>
